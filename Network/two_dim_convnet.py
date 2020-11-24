@@ -1,4 +1,5 @@
 '''Creating Two dimensional convolutional neural net layers'''
+
 import torch
 import torch.nn as nn
 from collections import OrderedDict
@@ -9,6 +10,23 @@ def make_conv_layer(in_channels,
                     non_linearity=True,
                     batch_norm=False,
                     atrou_rate=1):
+    
+    '''Create a convolutional layer with relevant padding and batchnorm + elu
+    
+    Parameters
+    -------
+    in_channels,
+    out_channels,
+    filter_size,
+    non_linearity=True,
+    batch_norm=False,
+    atrou_rate=1
+    
+    Return
+    ------
+    Sequential of layers
+    '''
+    
     layers = []
     if filter_size == 1:
         padding_size = 0
@@ -35,9 +53,10 @@ def make_conv_layer(in_channels,
     return nn.Sequential(OrderedDict(layers))
 
 class SeparableConv2d(nn.Module):
-    'Create sep conv 2d as not a method in Pytorch (but is in Tensorflow)'
-    'Separable conv = depthwise followed by pointwise conv'
-    'Variable bias by default set to True'
+    ''''Create sep conv 2d as not a method in Pytorch (but is in Tensorflow)'
+    Separable conv = depthwise followed by pointwise convolution
+    Variable bias by default set to True'''
+    
     def __init__(self,in_channels,
                  out_channels,
                  filter_size=1,
