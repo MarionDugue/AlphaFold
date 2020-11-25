@@ -1,9 +1,15 @@
+'''Create the network with convolutional layers + seprable layers + resnet'''
+
 import torch
 import torch.nn as nn
-from two_dim_convnet import  make_conv_layer, make_two_dim_resnet
+from two_dim_convnet import  make_conv_layer
+from two_dim_resnet import make_two_dim_resnet
 
 class ContactsNet(nn.Module):
+    
     def __init__(self, config):
+        '''Set number of bins, network, number of features, threshold (8 angstrom), 
+        making the 2d resnet and create the fully connected layers'''
         super().__init__()
 
         self.config = config
@@ -74,7 +80,8 @@ class ContactsNet(nn.Module):
                     l.append(nn.Linear(embed_dim, nfil))
                 embed_dim = nfil
             self.collapsed_embed = nn.ModuleList(l)
-
+        
+        #Create fully connected layers
         if config.torsion_multiplier > 0:
             self.torsion_logits = nn.Linear(embed_dim, config.torsion_bins * config.torsion_bins)
 
@@ -86,6 +93,7 @@ class ContactsNet(nn.Module):
 
 
     def build_crops_biases(self, bias_size, raw_biases, crop_x, crop_y):
+        '''Adding bias'''
         max_off_diag = torch.max((crop_x[:, 1] - crop_y[:, 0]).abs(), (crop_y[:, 1] - crop_x[:, 0]).abs()).max()
         padded_bias_size = max(bias_size, max_off_diag)
 
@@ -112,6 +120,8 @@ class ContactsNet(nn.Module):
         return cropped_biases
 
     def forward(self, x, crop_x, crop_y):
+        '''returns : distance probability, contact porbability, 
+        torsion probability, secondary structure proba and asa output   '''
         config = self.config
 
         out = self.Deep2DExtra(x)
@@ -171,6 +181,7 @@ class ContactsNet(nn.Module):
         return results
 
     def get_parameter_number(self):
+        ''''''
         total_num = sum(p.numel() for p in self.parameters())
         trainable_num = sum(p.numel() for p in self.parameters() if p.requires_grad)
         return {'Total': total_num, 'Trainable': trainable_num}
