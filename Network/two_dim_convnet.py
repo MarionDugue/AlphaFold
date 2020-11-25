@@ -1,6 +1,5 @@
 '''Creating Two dimensional convolutional neural net layers'''
 
-import torch
 import torch.nn as nn
 from collections import OrderedDict
 
@@ -88,7 +87,22 @@ def make_conv_sep2d_layer(in_channels,
                           batch_norm=False,
                           atrou_rate=1):
     
-    """Use separable convolutions."""
+    '''Create a convolutional seperable layer with relevant padding and batchnorm + elu
+    
+    Parameters
+    -------
+    in_channels,
+    out_channels,
+    channel_multiplier,
+    filter_size,
+    filter_size_2=None,
+    batch_norm=False,
+    atrou_rate=1
+    
+    Return
+    ------
+    Sequential of layers
+    '''
     layers = []
     
     if filter_size_2 is None:
