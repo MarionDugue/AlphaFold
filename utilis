@@ -1,3 +1,5 @@
+'''Compiles useful methods that are used independently throughout the code.'''
+
 import json
 import torch
 import numpy as np
@@ -5,6 +7,7 @@ from datetime import datetime
 from collections import namedtuple
 
 def timer(func):
+    '''Use to time running a method'''
     def wrapper(*args, **kwds):
         start_t = datetime.now()
         rets = func(*args, **kwds)
@@ -16,6 +19,7 @@ def timer(func):
     return wrapper
 
 def build_config(model_path, replica):
+    '''Build the configuration of a model '''
     config_file = model_path / replica / 'config.json'
     stats_file = model_path / 'stats_train_s35.json'
     with open(config_file, 'r') as f:
@@ -38,6 +42,7 @@ def build_config(model_path, replica):
 
 @timer
 def load_tf_ckpt(model, model_file_pt):
+    ''' Create checkpoints just like in tensorflow'''
     import tensorflow as tf
 
     model_file_tf = model_file_pt.parent / 'tf_graph_data' / 'tf_graph_data.ckpt'
@@ -106,6 +111,7 @@ def load_tf_ckpt(model, model_file_pt):
     torch.save(model.state_dict(), model_file_pt)
 
 def save_seq_prob(prob, seq, out_file):
+    '''Save the sequence of the secondary structure '''
     SECONDARY_STRUCTURES = '-HETSGBI'
     if len(prob.shape) == 1:
         prob = prob.reshape(-1,1)
@@ -119,6 +125,7 @@ def save_seq_prob(prob, seq, out_file):
             f.write(f"{i+1:4d} {seq[i]:1s} {ss:1s} {''.join(['%6.3f'%p for p in prob[i]])}\n")
 
 def generate_domains(target, seq, crop_sizes='64,128,256', crop_step=32):
+
     windows = [int(x) for x in crop_sizes.split(",")]
     num_residues = len(seq)
     domains = []
