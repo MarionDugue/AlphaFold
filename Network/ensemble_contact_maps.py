@@ -1,4 +1,4 @@
-import run_eval
+from run_eval import run_eval
 import torch
 import argparse
 import numpy as np
@@ -6,8 +6,9 @@ import utils
 from pathlib import Path
 from datetime import datetime
 
-
 def ensemble(target_path, out_dir):
+    ''' '''
+    #Create a dictionary r of the distances with the replicas
     for model_dir in filter(lambda d:d.is_dir() and d.name != 'pasted', out_dir.iterdir()):
         r = {}
         for replica_dir in filter(lambda d:d.is_dir() and d.name.isdigit(), model_dir.iterdir()):
@@ -25,7 +26,7 @@ def ensemble(target_path, out_dir):
         for k, v in r.items():
             ensemble_file = ensemble_dir / f'{k}.distance'
             ensemble_dis = sum(v) / len(v)
-            ensemble_dis.dump(ensemble_file)
+            ensemble_dis.dump(ensemble_file) #store ensemble file
 
     targets_weight = {data['domain_name']:{'weight':data['num_alignments'][0,0], 'seq':data['sequence']} for data in np.load(target_path, allow_pickle=True)}
     ensemble_dir = out_dir / 'Distogram' / 'ensemble'
@@ -56,6 +57,7 @@ def ensemble(target_path, out_dir):
         utils.save_rr_file(contact_probs, seq, target, paste_dir / f'{target}.rr')
         utils.plot_contact_map(target, [contact_probs, combined_cmap], paste_dir / f'{target}.png')
 
+#Parsing
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Alphafold - PyTorch version')
     parser.add_argument('-i', '--input', type=str, required=True, help='target protein, support both .pkl or .tfrec format')
@@ -69,6 +71,7 @@ if __name__ == '__main__':
 
     DEBUG = args.debug
     TARGET_PATH = args.input
+    TARGET = TARGET_PATH.split('/')[-1].split('.')[0]
     timestr = datetime.now().strftime('%Y_%m_%d_%H_%M_%S')
     OUT_DIR = Path(args.out) if args.out else Path(f'contacts_{TARGET}_{timestr}')
 
@@ -90,6 +93,7 @@ if __name__ == '__main__':
         OUT_DIR = OUT_DIR / MODEL_TYPE / REPLICA
         OUT_DIR.mkdir(parents=True, exist_ok=True)
 
+        print('hello')
         print(f'Input file: {TARGET_PATH}')
         print(f'Output dir: {OUT_DIR}')
         print(f'{MODEL_TYPE} model: {MODEL_PATH}')
