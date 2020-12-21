@@ -122,7 +122,7 @@ def make_two_dim_resnet(num_features,
     
     Returns
     -------
-    Sequential of layers consitutuing the 2d resnet'''
+    Sequential of layers consituting the 2d resnet'''
             
     #Note: à trou rate is equivalent to dilution factor
     if atrou_rates is None: atrou_rates = [1]
