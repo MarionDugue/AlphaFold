@@ -2,12 +2,14 @@ import torch
 import numpy as np
 import utils
 from datetime import datetime
-from network import ContactsNet
+from ContactsNet import ContactsNet
 from dataset import ProteinDataLoader
 
 def run_eval(target_path, model_path, replica, out_dir, device):
-    config = utils.build_config(model_path, replica)
-    dataloader = ProteinDataLoader(target_path, config)
+    ''' Evaulate time needed to run examples and crops'''
+    
+    config = utils.build_config(model_path, replica) #returns the configuration as a named tuple            
+    dataloader = ProteinDataLoader(target_path, config) #loads data
     model = ContactsNet(config.network_config).to(device)
     print(f'Model parameters: {model.get_parameter_number()["Total"]}')
 
@@ -40,7 +42,7 @@ def run_eval(target_path, model_path, replica, out_dir, device):
         L = protein.len
         print('Data: ',protein.targets.domain_name, L)
 
-        # Crops
+        # Cropping regions
         contact_prob_accum = np.zeros((L, L, 2), dtype=np.float32)
         distance_prob_accum = np.zeros((L, L, num_bins), dtype=np.float32)
         sec_accum = np.zeros((L, 8), dtype=np.float32)
@@ -98,8 +100,9 @@ def run_eval(target_path, model_path, replica, out_dir, device):
                 asa_x = out['asa_output'][0, prepad_x:crop_size_x - postpad_x].numpy()
                 asa_y = out['asa_output'][0, crop_size_x + prepad_y:crop_size_x + crop_size_y - postpad_y].numpy()
                 asa_accum[ic:ic + asa_x.shape[0]] += np.squeeze(asa_x, 1)
-                asa_accum[jc:jc + asa_y.shape[0]] += np.squeeze(asa_y, 1)
+                
 
+                asa_accum[jc:jc + asa_y.shape[0]] += np.squeeze(asa_y, 1)
             num_crops_local += 1
         
         assert (contact_prob_accum[:, :, 1] > 0.0).all()
